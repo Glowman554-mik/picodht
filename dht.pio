@@ -1,0 +1,38 @@
+.program dht
+
+.define public start_signal_clocks_per_loop	  1
+.define public pulse_measurement_clocks_per_loop 2
+
+
+loop_until_start_signal_done:
+	jmp y-- loop_until_start_signal_done
+	set pindirs 0
+
+loop_until_ready_lo:
+	jmp pin loop_until_ready_lo
+
+loop_until_ready_hi:
+	jmp pin loop_until_lo
+	jmp loop_until_ready_hi
+
+loop_until_lo:
+	jmp pin loop_until_lo
+
+loop_until_hi:
+	jmp pin pulse_loop_init
+	jmp loop_until_hi
+	
+pulse_loop_init:
+	mov y, osr
+pulse_loop:
+	jmp pin pulse_tick
+	jmp short_pulse_detected
+pulse_tick:
+	jmp y-- pulse_loop
+	set x, 1
+	in x, 1
+	jmp loop_until_lo
+
+short_pulse_detected:
+	in null, 1
+	jmp loop_until_hi
